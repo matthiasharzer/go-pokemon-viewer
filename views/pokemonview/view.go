@@ -1,9 +1,12 @@
 package pokemonview
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/matthiasharzer/go-pokemon-viewer/domain/pokemon"
 	"github.com/matthiasharzer/go-pokemon-viewer/logging"
@@ -11,17 +14,16 @@ import (
 	"github.com/matthiasharzer/go-pokemon-viewer/view/inmemory"
 )
 
-//go:embed pokedex.json
-var pokedexRawData []byte
+const pokedexURL = "https://pokemon-go-api.github.io/pokemon-go-api/api/pokedex.json"
 
-func toDomainTranslation(translation PokedexTranslation) pokemon.Translation {
+func toDomainTranslation(translation responsePokedexTranslation) pokemon.Translation {
 	return pokemon.Translation{
 		English: translation.English,
 		German:  translation.German,
 	}
 }
 
-func toDomainPokemon(pokedexPokemon PokedexPokemon) pokemon.Pokemon {
+func toDomainPokemon(pokedexPokemon responsePokedexPokemon) pokemon.Pokemon {
 	pkm := pokemon.Pokemon{
 		ID:         pokedexPokemon.ID,
 		DexNr:      pokedexPokemon.DexNr,
@@ -51,11 +53,17 @@ func toDomainPokemon(pokedexPokemon PokedexPokemon) pokemon.Pokemon {
 	return pkm
 }
 
-func New() (view.ReadOnlyView[pokemon.Pokemon], error) {
-	pokemonView := inmemory.NewView[pokemon.Pokemon]()
+func fetchPokedex() ([]pokemon.Pokemon, error) {
+	response, err := http.Get(pokedexURL)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
-	var pokedex []PokedexPokemon
-	err := json.Unmarshal(pokedexRawData, &pokedex)
+	var pokedex []responsePokedexPokemon
+	err = json.NewDecoder(response.Body).Decode(&pokedex)
 	if err != nil {
 		return nil, err
 	}
@@ -64,10 +72,49 @@ func New() (view.ReadOnlyView[pokemon.Pokemon], error) {
 	for _, pkm := range pokedex {
 		allPokemon = append(allPokemon, toDomainPokemon(pkm))
 	}
-	logging.Info(fmt.Sprintf("Loaded %d Pokémon from pokedex.json", len(allPokemon)))
-	err = pokemonView.Insert(allPokemon...)
+	return allPokemon, nil
+}
+
+func refetchPokedex(view view.View[pokemon.Pokemon]) error {
+	pokedex, err := fetchPokedex()
 	if err != nil {
-		return nil, err
+		return err
+	}
+
+	logging.Info(fmt.Sprintf("fetched %d Pokémon from pokedex URL", len(pokedex)))
+	err = view.ReplaceAll(pokedex...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func fetchRoutine(ctx context.Context, interval time.Duration, view view.View[pokemon.Pokemon]) {
+	ticker := time.NewTicker(interval)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			logging.Info("updating pokedex")
+			err := refetchPokedex(view)
+			if err != nil {
+				logging.Warn("failed to fetch pokedex", "error", err)
+			}
+		}
+	}
+}
+
+func New(ctx context.Context, fetchInterval time.Duration) (view.ReadOnlyView[pokemon.Pokemon], error) {
+	pokemonView := inmemory.NewView[pokemon.Pokemon]()
+
+	err := refetchPokedex(pokemonView)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch initial pokedex: %w", err)
+	}
+
+	if fetchInterval > 0 {
+		go fetchRoutine(ctx, fetchInterval, pokemonView)
 	}
 
 	return pokemonView, nil

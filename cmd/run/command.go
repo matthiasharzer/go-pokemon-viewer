@@ -1,6 +1,7 @@
 package run
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -16,17 +17,25 @@ import (
 
 var httpPort int
 var httpHost string
+var fetchInterval = 24 * time.Hour
 
 func init() {
 	Command.Flags().IntVarP(&httpPort, "port", "p", 4000, "The HTTP server port to listen on")
 	Command.Flags().StringVarP(&httpHost, "host", "", "", "The HTTP server host (default: all interfaces)")
+	Command.Flags().DurationVarP(&fetchInterval, "fetch-interval", "", fetchInterval, "The interval at which to fetch the pokémon data. If set to 0, will disable periodic updates, but will download pokémon date initially nonetheless.")
 }
 
 var Command = &cobra.Command{
 	Use:          "run",
 	SilenceUsage: true,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if fetchInterval < 0 {
+			return fmt.Errorf("fetch interval cannot be negative")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		pokemonView, err := pokemonview.New()
+		pokemonView, err := pokemonview.New(context.Background(), fetchInterval)
 		if err != nil {
 			return fmt.Errorf("failed to create pokémon view: %w", err)
 		}

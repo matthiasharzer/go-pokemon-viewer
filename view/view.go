@@ -16,4 +16,5 @@ type View[T any] interface {
 	Update(predicate PredicateFn[T], updateFn func(*T) error) error
 	Delete(predicate PredicateFn[T]) error
 	DeleteAll() error
+	ReplaceAll(data ...T) error
 }

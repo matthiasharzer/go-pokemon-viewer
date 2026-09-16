@@ -104,7 +104,7 @@ jobs:
         run: |
           ssh -p $SSH_PORT -i ~/.ssh/id_ed25519 $REMOTE_USER@$REMOTE_HOST "
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            cd /opt/services/go-stats-viewer
+            cd /opt/services/go-pokemon-viewer
             docker compose down
             docker compose up -d --pull=always
           "
