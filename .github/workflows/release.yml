@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
       - name: Get next version
         id: get-next-version
-        uses: thenativeweb/get-next-version@2.7.6
+        uses: thenativeweb/get-next-version@2.8.0
 
   release:
     name: Release
@@ -81,3 +81,31 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/go-pokemon-viewer:${{ needs.get-next-version.outputs.version }}
           build-args: |
             version=v${{ needs.get-next-version.outputs.version }}
+
+
+  deploy:
+    name: Deploy Pokémon GO Stats Viewer
+    runs-on: ubuntu-latest
+    needs: release
+    environment: production
+    env:
+      REMOTE_HOST: ${{ vars.REMOTE_HOST }}
+      REMOTE_USER: ${{ vars.REMOTE_USER }}
+      SSH_PORT: ${{ vars.REMOTE_PORT }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -p "$SSH_PORT" "$REMOTE_HOST" >> ~/.ssh/known_hosts
+      - name: Restart Docker compose
+        run: |
+          ssh -p $SSH_PORT -i ~/.ssh/id_ed25519 $REMOTE_USER@$REMOTE_HOST "
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            cd /opt/services/go-stats-viewer
+            docker compose down
+            docker compose up -d --pull=always
+          "
+
