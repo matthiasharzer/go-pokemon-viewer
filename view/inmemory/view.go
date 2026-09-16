@@ -116,3 +116,12 @@ func (v *View[T]) DeleteAll() error {
 	v.recalculateHash()
 	return nil
 }
+
+func (v *View[T]) ReplaceAll(items ...T) error {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	v.items = items
+	v.recalculateHash()
+	return nil
+}
