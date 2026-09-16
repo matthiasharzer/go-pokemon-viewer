@@ -7,11 +7,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/matthiasharzer/go-stats-viewer/logging"
-	"github.com/matthiasharzer/go-stats-viewer/queries/pokedex"
-	"github.com/matthiasharzer/go-stats-viewer/ui"
-	"github.com/matthiasharzer/go-stats-viewer/utils/httputils"
-	"github.com/matthiasharzer/go-stats-viewer/views/pokemonview"
+	"github.com/matthiasharzer/go-pokemon-viewer/logging"
+	"github.com/matthiasharzer/go-pokemon-viewer/queries/pokedex"
+	"github.com/matthiasharzer/go-pokemon-viewer/ui"
+	"github.com/matthiasharzer/go-pokemon-viewer/utils/httputils"
+	"github.com/matthiasharzer/go-pokemon-viewer/views/pokemonview"
 )
 
 var httpPort int
@@ -56,7 +56,7 @@ var Command = &cobra.Command{
 		)
 
 		addr := fmt.Sprintf("%s:%d", httpHost, httpPort)
-		logging.Info("starting go-stats-viewer-server", "host", httpHost, "port", httpPort)
+		logging.Info("starting go-pokemon-viewer-server", "host", httpHost, "port", httpPort)
 		err = http.ListenAndServe(
 			addr,
 			mux,

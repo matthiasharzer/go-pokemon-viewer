@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/matthiasharzer/go-stats-viewer/cmd/run"
-	"github.com/matthiasharzer/go-stats-viewer/cmd/version"
+	"github.com/matthiasharzer/go-pokemon-viewer/cmd/run"
+	"github.com/matthiasharzer/go-pokemon-viewer/cmd/version"
 
 	"github.com/spf13/cobra"
 )
 
 var rootCommand = &cobra.Command{
-	Use: "go-stats-viewer",
+	Use: "go-pokemon-viewer",
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		return cmd.Help()
 	},

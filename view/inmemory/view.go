@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/matthiasharzer/go-stats-viewer/view"
+	"github.com/matthiasharzer/go-pokemon-viewer/view"
 )
 
 type Hashable interface {

@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/matthiasharzer/go-stats-viewer/domain/pokemon"
-	"github.com/matthiasharzer/go-stats-viewer/logging"
-	"github.com/matthiasharzer/go-stats-viewer/view"
-	"github.com/matthiasharzer/go-stats-viewer/view/inmemory"
+	"github.com/matthiasharzer/go-pokemon-viewer/domain/pokemon"
+	"github.com/matthiasharzer/go-pokemon-viewer/logging"
+	"github.com/matthiasharzer/go-pokemon-viewer/view"
+	"github.com/matthiasharzer/go-pokemon-viewer/view/inmemory"
 )
 
 //go:embed pokedex.json
@@ -47,7 +47,7 @@ func toDomainPokemon(pokedexPokemon PokedexPokemon) pokemon.Pokemon {
 			Names: toDomainTranslation(pokedexPokemon.SecondaryType.Names),
 		}
 	}
-	
+
 	return pkm
 }
 
