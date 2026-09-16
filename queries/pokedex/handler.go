@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/matthiasharzer/go-stats-viewer/domain/pokemon"
-	"github.com/matthiasharzer/go-stats-viewer/view"
+	"github.com/matthiasharzer/go-pokemon-viewer/domain/pokemon"
+	"github.com/matthiasharzer/go-pokemon-viewer/view"
 )
 
 func Handler(pokedexView view.ReadOnlyView[pokemon.Pokemon]) http.HandlerFunc {

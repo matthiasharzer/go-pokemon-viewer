@@ -11,6 +11,6 @@ var version = "unknown"
 var Command = &cobra.Command{
 	Use: "version",
 	Run: func(_ *cobra.Command, _ []string) {
-		fmt.Printf("go-stats-viewer version %s\n", version)
+		fmt.Printf("go-pokemon-viewer version %s\n", version)
 	},
 }

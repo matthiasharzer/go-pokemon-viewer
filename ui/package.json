@@ -1,5 +1,5 @@
 {
-	"name": "pokemon-go-stats-viewer",
+	"name": "go-pokemon-viewer",
 	"version": "1.0.0",
 	"devDependencies": {
 		"@biomejs/biome": "2.5.7",

@@ -1,15 +1,20 @@
 BUILD_VERSION ?= "unknown"
 
-OUTPUT_NAME := go-stats-viewer
+OUTPUT_NAME := go-pokemon-viewer
 MODULE_NAME := $(shell go list -m)
 
 clean:
 	@rm -rf build/
 
-build: clean
+build: build-ui build-server
+
+build-server: clean
 	@GOOS=windows GOARCH=amd64 go build -o ./build/$(OUTPUT_NAME)-windows-amd64.exe -ldflags "-X $(MODULE_NAME)/cmd/version.version=$(BUILD_VERSION)" ./main.go
 	@GOOS=linux GOARCH=amd64 go build -o ./build/$(OUTPUT_NAME)-linux-amd64 -ldflags "-X $(MODULE_NAME)/cmd/version.version=$(BUILD_VERSION)" ./main.go
 	@GOOS=linux GOARCH=arm64 go build -o ./build/$(OUTPUT_NAME)-linux-arm64 -ldflags "-X $(MODULE_NAME)/cmd/version.version=$(BUILD_VERSION)" ./main.go
+
+build-ui: install-ui-dependencies
+	@cd ui && npm run build
 
 qa: qa-server qa-ui
 
@@ -37,6 +42,8 @@ install-ui-dependencies:
 
 .PHONY: clean \
 				build \
+				build-server \
+				build-ui \
 				qa \
 				test \
 				qa-server \

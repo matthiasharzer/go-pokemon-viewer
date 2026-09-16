@@ -1,4 +1,4 @@
-module github.com/matthiasharzer/go-stats-viewer
+module github.com/matthiasharzer/go-pokemon-viewer
 
 go 1.26.4
 
