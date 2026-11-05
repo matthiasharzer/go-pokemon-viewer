@@ -1,4 +1,4 @@
-FROM node:26.12.0-trixie-slim AS build-ui
+FROM node:26.13.0-trixie-slim AS build-ui
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ WORKDIR /app/ui
 RUN npm ci && \
 		npm run build
 
-FROM golang:1.27.2-alpine3.24 AS build-server
+FROM golang:1.27.3-alpine3.24 AS build-server
 
 ARG version=unknown
 
