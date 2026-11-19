@@ -1,4 +1,4 @@
-FROM node:26.13.0-trixie-slim AS build-ui
+FROM node:26.13.1-trixie-slim AS build-ui
 
 WORKDIR /app
 
