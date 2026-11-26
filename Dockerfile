@@ -9,7 +9,7 @@ WORKDIR /app/ui
 RUN npm ci && \
 		npm run build
 
-FROM golang:1.27.3-alpine3.24 AS build-server
+FROM golang:1.27.4-alpine3.24 AS build-server
 
 ARG version=unknown
 
